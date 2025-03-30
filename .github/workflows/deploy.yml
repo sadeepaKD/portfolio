@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy static site to GitHub Pages
 
 on:
   push:
@@ -6,23 +6,30 @@ on:
       - main
 
 permissions:
-  contents: write
+  pages: write      # Needed for GitHub Pages deployment
+  id-token: write   # Needed for OIDC authentication
+  contents: read    # Needed to checkout the code
 
 jobs:
   deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: Checkout the code
+        uses: actions/checkout@v4
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
-      - name: Upload static site
+      - name: Upload static files
         uses: actions/upload-pages-artifact@v2
         with:
           path: .
 
       - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v2
