@@ -1,37 +1,32 @@
-name: Deploy static HTML to GitHub Pages
+name: Build and Deploy to gh-pages
 
 on:
   push:
     branches:
       - main
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
 jobs:
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout source
+        uses: actions/checkout@v3
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload HTML artifact
-        uses: actions/upload-pages-artifact@v2
+      - name: Setup Node (required by gh-pages)
+        uses: actions/setup-node@v3
         with:
-          path: .
+          node-version: '16'
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v2
+      - name: Install gh-pages tool
+        run: npm install -g gh-pages
+
+      - name: Copy files to build directory
+        run: |
+          mkdir dist
+          cp index.html dist/
+
+      - name: Deploy to gh-pages branch
+        run: gh-pages -d dist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
