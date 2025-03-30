@@ -1,4 +1,4 @@
-name: Deploy static site using gh-pages
+name: CI/CD Deploy to GitHub Pages
 
 on:
   push:
@@ -10,23 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout source code
         uses: actions/checkout@v3
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          node-version: '16'
-
-      - name: Create dist folder with HTML
-        run: |
-          mkdir dist
-          cp index.html dist/
-
-      - name: Install gh-pages
-        run: npm install -g gh-pages
-
-      - name: Deploy to gh-pages
-        run: gh-pages -d dist
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
